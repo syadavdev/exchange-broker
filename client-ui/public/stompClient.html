@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>STOMP Client Example</title>
+    <script src="stomp.js"></script>
+    <script>
+        const url = "ws://localhost:8081/gs-guide-websocket"; // Replace with your server URL
+        const stompClient = Stomp.client(url);
+
+        function connect() {
+            stompClient.connect({}, function (frame) {
+                console.log('Connected to: ' + frame.headers.server);
+                stompClient.subscribe('/topic/greetings', function (message) { // Subscribe to the greeting topic
+                    console.log("Received greeting:", JSON.parse(message.body));
+                });
+
+                // Send a message to the server (optional)
+                const message = { "ticker": "INFY" };
+                stompClient.send("/app/hello", {}, JSON.stringify(message));
+            });
+        }
+
+        function disconnect() {
+            if (stompClient.connected) {
+                stompClient.disconnect();
+            }
+            console.log("Disconnected");
+        }
+    </script>
+</head>
+<body>
+    <h1>STOMP Client</h1>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</body>
+</html>
