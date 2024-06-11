@@ -10,7 +10,6 @@ root.render(
   <React.StrictMode>
     <App />
     <TickerPrice />
-
   </React.StrictMode>
 );
 

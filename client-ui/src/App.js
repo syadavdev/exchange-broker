@@ -48,10 +48,10 @@ function HttpCallPage() {
   };
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       <form onSubmit={handleSubmit}>
-        <div style={{ display: 'flex', marginBottom: '10px' }}>
-          <label htmlFor="ticker">Symbol:</label>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <label htmlFor="ticker" style={{ fontWeight: 'bold' }}>Symbol:</label>
           <input
             type="text"
             name="ticker"
@@ -59,11 +59,11 @@ function HttpCallPage() {
             onChange={handleChange}
             id="ticker"
             placeholder="Enter Ticker"
-            style={{ marginRight: '10px' }} // Add margin-right for horizontal gap
+            style={{ marginLeft: '10px' }}
           />
         </div>
-        <div style={{ display: 'flex', marginBottom: '10px' }}>
-          <label htmlFor="price">Price:</label>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <label htmlFor="price" style={{ fontWeight: 'bold' }}>Price:</label>
           <input
             type="number"
             name="price"
@@ -71,11 +71,11 @@ function HttpCallPage() {
             onChange={handleChange}
             id="price"
             placeholder="Enter Price"
-            style={{ marginRight: '10px' }} // Add margin-right for horizontal gap
+            style={{ marginLeft: '10px' }}
           />
         </div>
-        <div style={{ display: 'flex', marginBottom: '10px' }}>
-          <label htmlFor="quantity">Quantity:</label>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <label htmlFor="quantity" style={{ fontWeight: 'bold' }}>Quantity:</label>
           <input
             type="number"
             name="quantity"
@@ -87,16 +87,16 @@ function HttpCallPage() {
         </div>
         <button type="submit" value="BUY" disabled={loading} onClick={handleOnclick} style={{
             backgroundColor: '#04AA6D',
-            padding: '10px 20px', // Increase button size with padding
-            fontSize: '16px', // Increase button font size
+            padding: '10px 20px',
+            fontSize: '16px',
             marginRight: '10px',
           }}>
           Buy
         </button>
         <button type="submit" value="SELL" disabled={loading} onClick={handleOnclick} style={{
             backgroundColor: '#f44336',
-            padding: '10px 20px', // Increase button size with padding
-            fontSize: '16px', // Increase button font size
+            padding: '10px 20px',
+            fontSize: '16px',
             marginRight: '10px',
           }}>
           Sell
@@ -107,12 +107,20 @@ function HttpCallPage() {
       {loading && <p>Loading data...</p>}
       {error && <p>Error: {error}</p>}
       {data && (
-        <pre>
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
+        <div style={{ display: 'flex' }}>
+          <pre>
+            <code>
+              {Object.entries(data).map(([key, value]) => (
+                <div key={key}>
+                  <b>{key}: </b> {value}
+                </div>
+              ))}
+            </code>
+          </pre>
+        </div>
       )}
     </div>
   );
 }
 
-export default HttpCallPage;
+export default HttpCallPage

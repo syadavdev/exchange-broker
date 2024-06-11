@@ -16,7 +16,7 @@ function makePostRequest() {
 
     // Request body for the first call with orderType as SELL
     const requestBody1 = {
-        ticker: "APPLE",
+        ticker: "INFY",
         brokerName: "ZERODHA",
         brokerUserId: "1",
         orderType: "SELL",
@@ -27,7 +27,7 @@ function makePostRequest() {
     // Request body for the second call with orderType as BUY
     const requestBody2 = {
         orderId: 14,
-        ticker: "APPLE",
+        ticker: "INFY",
         brokerName: "ZERODHA",
         brokerUserId: "1",
         orderType: "BUY",

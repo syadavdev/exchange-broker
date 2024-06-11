@@ -1,89 +1,102 @@
-import { useEffect, useRef } from 'react';
-import { Chart, registerables } from 'chart.js';
-import 'chartjs-adapter-date-fns';
+import React from 'react';
+import Highcharts from 'highcharts';
+import HighchartsReact from 'highcharts-react-official';
 
-Chart.register(...registerables);
+function PriceChart({ priceData }) {
+  // Initialize arrays to store series data
+  const seriesData = [];
 
-function PriceChart({ priceData, id }) {
-    const chartRef = useRef(null);
-    const chartInstance = useRef(null);
+  // Filter out price data points where price does not change for more than 5 minutes
+  const filteredPriceData = [];
+  let lastTimestamp = null;
+  let lastPrice = null;
 
-    useEffect(() => {
-        if (priceData.length > 0 && chartRef.current) {
-            const prices = priceData.map((data) => data.price);
-            const timestamps = priceData.map((data) => new Date(data.timestamp * 1000));
+  for (const data of priceData) {
+    if (lastTimestamp === null || lastPrice === null) {
+      filteredPriceData.push(data);
+    } else {
+      const timeDifference = data.timestamp - lastTimestamp;
+      if (timeDifference > 300 || data.price !== lastPrice) {
+        filteredPriceData.push(data);
+      }
+    }
 
-            // Calculate the timestamp for one minute ago
-            const oneMinuteAgo = new Date(Date.now() - 60000);
+    lastTimestamp = data.timestamp;
+    lastPrice = data.price;
+  }
 
-            // Filter the data to include only the last minute's worth of data
-            const filteredPrices = [];
-            const filteredTimestamps = [];
-            for (let i = 0; i < timestamps.length; i++) {
-                if (timestamps[i] > oneMinuteAgo) {
-                    filteredPrices.push(prices[i]);
-                    filteredTimestamps.push(timestamps[i]);
-                }
-            }
+  // Convert filteredPriceData to series data format
+  for (const data of filteredPriceData) {
+    seriesData.push({
+      x: data.timestamp * 1000, // Convert timestamp to milliseconds
+      y: data.price
+    });
+  }
 
-            if (chartInstance.current) {
-                // Update existing chart data instead of destroying it
-                chartInstance.current.data.labels = filteredTimestamps;
-                chartInstance.current.data.datasets[0].data = filteredPrices;
-                chartInstance.current.update();
-            } else {
-                const ctx = chartRef.current.getContext('2d');
-                chartInstance.current = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: filteredTimestamps,
-                        datasets: [{
-                            label: 'Price',
-                            data: filteredPrices,
-                            borderColor: 'blue',
-                            borderWidth: 1,
-                            fill: false,
-                        }],
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                title: {
-                                    display: true,
-                                    text: 'Price',
-                                },
-                            },
-                            x: {
-                                type: 'time',
-                                time: {
-                                    tooltipFormat: 'yyyy-MM-dd HH:mm:ss',
-                                    displayFormats: {
-                                        millisecond: 'yyyy-MM-dd HH:mm:ss.SSS',
-                                        second: 'HH:mm:ss', // Only display hours, minutes, and seconds
-                                        minute: 'HH:mm:ss', // Only display hours, minutes, and seconds
-                                        hour: 'HH:mm', // Only display hours and minutes
-                                        day: 'yyyy-MM-dd',
-                                        week: 'yyyy-MM-dd',
-                                        month: 'yyyy-MM',
-                                        quarter: 'yyyy-QQ',
-                                        year: 'yyyy',
-                                    },
-                                    auto: true, // Automatically determine time scale
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Time',
-                                },
-                            },
-                        },
-                    },
-                });
-            }
+  // Options for Highcharts
+  const options = {
+    title: {
+      text: 'Price Chart',
+      style: {
+        color: 'green' // Title text color
+      }
+    },
+    chart: {
+      backgroundColor: '#222' // Background color
+    },
+    xAxis: {
+      type: 'datetime',
+      title: {
+        text: 'Time',
+        style: {
+          color: 'blue' // X-axis label color
         }
-    }, [priceData, id]); // Include id in the dependency array
+      },
+      labels: {
+        style: {
+          color: 'red' // X-axis tick label color
+        }
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Price',
+        style: {
+          color: 'blue' // Y-axis label color
+        }
+      },
+      labels: {
+        style: {
+          color: 'red' // Y-axis tick label color
+        }
+      }
+    },
+    plotOptions: {
+      series: {
+        area: {
+          color: 'rgba(0, 0, 255, 0.3)' // Transparent blue color for area below the line
+        }
+      }
+    },
+    series: [{
+      name: 'Price',
+      data: seriesData,
+      lineWidth: 2, // Draw line instead of dots
+      connectNulls: true // Connect the points even when there are missing data
+    }],
+    navigator: {
+      enabled: true // Enable the navigator feature
+    }
+  };
 
-    return <canvas id={`priceChart-${id}`} ref={chartRef} width="400" height="200"></canvas>;
+  return (
+    <div>
+      <HighchartsReact
+        highcharts={Highcharts}
+        options={options}
+      />
+    </div>
+  );
 }
 
 export default PriceChart;
